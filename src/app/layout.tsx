@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { WalletProvider } from "@/components/wallet/WalletProvider";
+import DashboardLayout from "@/components/display/DashboardLayout";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,7 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <WalletProvider>{children}</WalletProvider>
+        <WalletProvider>
+          <DashboardLayout>
+            {children}
+          </DashboardLayout>
+        </WalletProvider>
       </body>
     </html>
   );
