@@ -3,7 +3,9 @@ import {
   useFetchPoolAddress,
   usePoolAddress,
 } from "@/hook/aave";
+import { useUSDCBalance } from "@/hook/token";
 import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
 
 interface Chain {
   id: number;
@@ -19,6 +21,8 @@ export default function AAVEYieldChain({
   updateChainAPR: (chainId: number, apr: string) => void;
   isBest: boolean
 }) {
+  const { address: userAddress } = useAccount();
+  const { formattedAmount } = useUSDCBalance(chain.id, userAddress);
   const { data: poolAddress } = useFetchPoolAddress(chain.id);
   const { data: poolData, isLoading } = usePoolAddress(chain.id, poolAddress);
   const [apr, setApr] = useState<string | null>(null);
@@ -87,7 +91,7 @@ export default function AAVEYieldChain({
                         </span>
                     </div>
                 </div>
-                
+
                 <div className="text-right">
                     <div className="text-xs text-gray-500 font-medium uppercase tracking-wider">
                         APR

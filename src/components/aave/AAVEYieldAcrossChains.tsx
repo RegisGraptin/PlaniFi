@@ -8,8 +8,6 @@ export default function AAVEYieldAcrossChains() {
   const [bestChainId, setBestChainId] = useState<number | null>(null);
 
   const updateChainAPR = (chainId: number, apr: string) => {
-    console.log(`Updated APR for chain ${chainId}: ${apr}`);
-
     // Update the APR for the specific chain
     setChainAPR((prev) => {
       const updated = { ...prev, [chainId]: apr };
