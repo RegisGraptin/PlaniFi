@@ -6,7 +6,6 @@ import WalletConnecting from "@/components/wallet/WalletConnecting";
 import WalletDisconnected from "@/components/wallet/WalletDisconnected";
 import SidebarMenu from "@/components/display/SidebarMenu";
 
-
 export default function DashboardLayout({
   children,
 }: {

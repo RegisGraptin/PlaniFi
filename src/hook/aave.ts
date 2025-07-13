@@ -31,8 +31,6 @@ export interface ReserveDataLegacy {
   isolationModeTotalDebt: bigint; // uint128
 }
 
-
-
 export function useFetchPoolAddress(chainId: number) {
   const contractAddress = POOL_ADDRESS_PROVIDER[chainId];
 
@@ -44,10 +42,9 @@ export function useFetchPoolAddress(chainId: number) {
   });
 }
 
-
 export function usePoolAddress(
   chainId: number,
-  poolAddress: string | undefined | unknown
+  poolAddress: string | undefined | unknown,
 ) {
   return useReadContract({
     address: poolAddress ? getAddress(poolAddress as string) : undefined,
@@ -59,5 +56,4 @@ export function usePoolAddress(
       enabled: !!poolAddress, // Only enable when address exists
     },
   });
-
 }

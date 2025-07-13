@@ -18,9 +18,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <WalletProvider>
-          <DashboardLayout>
-            {children}
-          </DashboardLayout>
+          <DashboardLayout>{children}</DashboardLayout>
         </WalletProvider>
       </body>
     </html>

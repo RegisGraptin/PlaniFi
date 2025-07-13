@@ -39,15 +39,12 @@ export default function Dashboard() {
         <h2>Find the best Yield across chains and rebalance instantly</h2>
       </div>
 
-        {/* TODO: Psossibility to add quick wallet observation on the user */}
+      {/* TODO: Psossibility to add quick wallet observation on the user */}
 
+      {/* TODO: Show the best here */}
 
-        {/* TODO: Show the best here */}
-
-        {/* Display for all chain the yield */}
-        <AAVEYieldAcrossChains />
-          
-      
+      {/* Display for all chain the yield */}
+      <AAVEYieldAcrossChains />
     </div>
   );
 }

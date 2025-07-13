@@ -15,7 +15,7 @@ import { usePathname } from "next/navigation";
 
 const VaultCardItem = ({ vaultAddress }: { vaultAddress: Address }) => {
   const pathname = usePathname();
-  
+
   return (
     <li className="mb-2">
       <Link
@@ -24,11 +24,9 @@ const VaultCardItem = ({ vaultAddress }: { vaultAddress: Address }) => {
         // className={`flex items-center p-2 ${getMenuColorStyle(vaultColorIndex as number)} rounded`}
         className={`w-full flex items-center p-2 rounded }`}
       >
-        
-        
-          <IoWallet className={`mx-2 text-2xl`} />
-        
-        <span>{ "My Wallet"}</span>
+        <IoWallet className={`mx-2 text-2xl`} />
+
+        <span>{"My Wallet"}</span>
       </Link>
     </li>
   );
