@@ -86,7 +86,9 @@ export default function AAVEYieldChain({
             )}
           </h2>
           <div className="mt-1 flex items-center">
-            <span className="text-xs text-gray-500">Pool Address Provider</span>
+            <span className="text-sm font-medium text-gray-700">
+              {formattedAmount ? formattedAmount : "0"} USDC
+            </span>
           </div>
         </div>
 
@@ -95,11 +97,6 @@ export default function AAVEYieldChain({
             APR
           </div>
           <div className="flex items-baseline justify-end gap-2">
-            {formattedAmount && (
-              <span className="text-sm font-medium text-gray-700">
-                {formattedAmount} USDC
-              </span>
-            )}
             <span className={`text-xl font-bold ${
               apr ? (parseFloat(apr) > 5 ? 'text-green-600' : 'text-blue-600') : 'text-gray-400'
             }`}>
