@@ -10,7 +10,13 @@ interface Chain {
   name: string;
 }
 
-export default function AAVEYieldChain({ chain }: { chain: Chain }) {
+export default function AAVEYieldChain({
+  chain,
+  updateChainAPR,
+}: {
+  chain: Chain;
+  updateChainAPR: (chainId: number, apr: string) => void;
+}) {
   const { data: poolAddress } = useFetchPoolAddress(chain.id);
   const { data: poolData } = usePoolAddress(chain.id, poolAddress);
   const [apr, setApr] = useState<string | null>(null);
@@ -25,7 +31,9 @@ export default function AAVEYieldChain({ chain }: { chain: Chain }) {
         liquidityRate.length - 25,
         liquidityRate.length - 23,
       );
-      setApr(`${integerPart}.${decimalPart}`);
+      const aprValue = `${integerPart}.${decimalPart}`;
+      setApr(aprValue);
+      updateChainAPR(chain.id, aprValue);
     }
   }, [poolData]);
 
