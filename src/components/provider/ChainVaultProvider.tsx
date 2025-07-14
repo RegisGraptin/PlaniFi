@@ -4,6 +4,7 @@ import {
   usePoolAddress,
 } from "@/hook/aave";
 import { useUSDCBalance } from "@/hook/token";
+import { useBalanceStore } from "@/store/balanceStore";
 import { useVaultStore, VaultData } from "@/store/vaultStore";
 import {
   createContext,
@@ -22,7 +23,7 @@ export const ChainVaultProvider = ({ chainId }: { chainId: number }) => {
   const { data: poolData } = usePoolAddress(chainId, poolAddress);
 
   const setVaultData = useVaultStore((state) => state.setVaultData);
-  const setBalance = useVaultStore((state) => state.setBalance);
+  const setBalance = useBalanceStore((state) => state.setBalance);
 
   useEffect(() => {
     if (poolData) {

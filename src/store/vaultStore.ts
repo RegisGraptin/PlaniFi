@@ -7,15 +7,12 @@ export type VaultData = {
 
 type VaultStore = {
   vaults: Record<number, VaultData>;
-  balances: Record<number, string>;  // USDC balances
   bestChainId: number | null;
   setVaultData: (chainId: number, data: VaultData) => void;
-  setBalance: (chainId: number, balance: string) => void;
 };
 
 export const useVaultStore = create<VaultStore>((set) => ({
   vaults: {},
-  balances: {},
   bestChainId: null,
   setVaultData: (chainId, data) => {
     set((state) => {
@@ -42,12 +39,4 @@ export const useVaultStore = create<VaultStore>((set) => ({
       };
     });
   },
-  setBalance: (chainId, newBalance) => {
-    set((state) => {
-      return {
-        ...state,
-        balances: { ...state.balances, [chainId]: newBalance }
-      }
-    })
-  }
 }));

@@ -1,6 +1,5 @@
-import { useUSDCBalance } from "@/hook/token";
+import { useBalanceStore } from "@/store/balanceStore";
 import { useVaultStore } from "@/store/vaultStore";
-import { useAccount } from "wagmi";
 
 interface Chain {
   id: number;
@@ -15,7 +14,7 @@ export default function AAVEYieldChain({
   isBest: boolean;
 }) {
   const vault = useVaultStore((state) => state.vaults[chain.id]);
-  const balance = useVaultStore((state) => state.balances[chain.id]);
+  const balance = useBalanceStore((state) => state.balances[chain.id]);
 
   if (!vault || vault.isLoading) {
     return (
