@@ -4,8 +4,6 @@ import { config } from "@/utils/wagmi";
 
 interface BestChainYieldProps {
   chainId: number | null;
-  apr: string;
-  isLoading?: boolean;
 }
 
 export default function BestChainYield({ chainId }: BestChainYieldProps) {

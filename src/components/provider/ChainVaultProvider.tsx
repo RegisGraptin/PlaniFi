@@ -17,11 +17,12 @@ const ChainVaultContext = createContext<VaultData | null>(null);
 export const ChainVaultProvider = ({ chainId }: { chainId: number }) => {
   const { address } = useAccount();
 
-  const { formattedAmount: usdc } = useUSDCBalance(chainId, address);
+  const { formattedAmount } = useUSDCBalance(chainId, address);
   const { data: poolAddress } = useFetchPoolAddress(chainId);
   const { data: poolData } = usePoolAddress(chainId, poolAddress);
 
   const setVaultData = useVaultStore((state) => state.setVaultData);
+  const setBalance = useVaultStore((state) => state.setBalance);
 
   useEffect(() => {
     if (poolData) {
@@ -35,6 +36,12 @@ export const ChainVaultProvider = ({ chainId }: { chainId: number }) => {
       setVaultData(chainId, vault);
     }
   }, [poolData]);
+
+  useEffect(() => {
+    if (formattedAmount) {
+      setBalance(chainId, formattedAmount);
+    }
+  }, [formattedAmount])
 
   return null;
 };

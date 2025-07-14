@@ -14,10 +14,8 @@ export default function AAVEYieldChain({
   chain: Chain;
   isBest: boolean;
 }) {
-  const { address: userAddress } = useAccount();
-  const { formattedAmount } = useUSDCBalance(chain.id, userAddress);
-
   const vault = useVaultStore((state) => state.vaults[chain.id]);
+  const balance = useVaultStore((state) => state.balances[chain.id]);
 
   if (!vault || vault.isLoading) {
     return (
@@ -63,7 +61,7 @@ export default function AAVEYieldChain({
           </h2>
           <div className="mt-1 flex items-center">
             <span className="text-sm font-medium text-gray-700">
-              {formattedAmount ? formattedAmount : "0"} USDC
+              {balance ? balance : "0"} USDC
             </span>
           </div>
         </div>
