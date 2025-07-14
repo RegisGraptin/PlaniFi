@@ -1,23 +1,12 @@
 "use client";
 
+import { AAVEVaultProvider } from "@/components/provider/AAVEVaultProvider";
 import AAVEYieldAcrossChains from "@/components/aave/AAVEYieldAcrossChains";
 import React from "react";
 import { BiWallet } from "react-icons/bi";
 import { FaChartPie } from "react-icons/fa";
 
 export default function Dashboard() {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isConnected, setIsConnected] = React.useState(false);
-  const [totalValue, setTotalValue] = React.useState(0);
-
-  React.useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsConnected(true);
-      setTotalValue(4500);
-    }, 1000);
-  }, []);
-
   return (
     <div className="container mx-auto p-6">
       
@@ -45,7 +34,9 @@ export default function Dashboard() {
       {/* TODO: Show the best here */}
 
       {/* Display for all chain the yield */}
-      <AAVEYieldAcrossChains />
+      <AAVEVaultProvider>
+        <AAVEYieldAcrossChains />
+      </AAVEVaultProvider>
     </div>
   );
 }

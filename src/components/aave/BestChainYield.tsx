@@ -1,4 +1,5 @@
 // BestChainYield.tsx
+import { useVaultStore } from "@/store/vaultStore";
 import { config } from "@/utils/wagmi";
 
 interface BestChainYieldProps {
@@ -7,9 +8,11 @@ interface BestChainYieldProps {
   isLoading?: boolean;
 }
 
-export default function BestChainYield({ chainId, apr }: BestChainYieldProps) {
+export default function BestChainYield({ chainId }: BestChainYieldProps) {
   const chain = chainId ? config.chains.find(c => c.id === chainId) : null;
   const isLoading = chainId === null;
+
+  const vaults = useVaultStore((state) => state.vaults);
 
   return (
     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200 p-6">
@@ -41,7 +44,7 @@ export default function BestChainYield({ chainId, apr }: BestChainYieldProps) {
               <div>
                 <div className="text-sm text-gray-600">Highest APR</div>
                 <div className="flex items-baseline">
-                  <span className="text-2xl font-bold text-gray-900">{apr}%</span>
+                  <span className="text-2xl font-bold text-gray-900">{vaults[chainId].apr}%</span>
                   <span className="ml-2 text-sm text-gray-600">on {chain.name}</span>
                 </div>
               </div>

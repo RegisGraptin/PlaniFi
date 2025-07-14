@@ -1,10 +1,5 @@
-import {
-  ReserveDataLegacy,
-  useFetchPoolAddress,
-  usePoolAddress,
-} from "@/hook/aave";
 import { useUSDCBalance } from "@/hook/token";
-import { useEffect, useState } from "react";
+import { useVaultStore } from "@/store/vaultStore";
 import { useAccount } from "wagmi";
 
 interface Chain {
@@ -14,36 +9,17 @@ interface Chain {
 
 export default function AAVEYieldChain({
   chain,
-  updateChainAPR,
   isBest,
 }: {
   chain: Chain;
-  updateChainAPR: (chainId: number, apr: string) => void;
   isBest: boolean;
 }) {
   const { address: userAddress } = useAccount();
   const { formattedAmount } = useUSDCBalance(chain.id, userAddress);
-  const { data: poolAddress } = useFetchPoolAddress(chain.id);
-  const { data: poolData, isLoading } = usePoolAddress(chain.id, poolAddress);
-  const [apr, setApr] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (poolData) {
-      const liquidityRate = (
-        poolData as ReserveDataLegacy
-      ).currentLiquidityRate.toString();
-      const integerPart = liquidityRate.slice(0, liquidityRate.length - 25);
-      const decimalPart = liquidityRate.slice(
-        liquidityRate.length - 25,
-        liquidityRate.length - 23,
-      );
-      const aprValue = `${integerPart}.${decimalPart}`;
-      setApr(aprValue);
-      updateChainAPR(chain.id, aprValue);
-    }
-  }, [poolData]);
+  const vault = useVaultStore((state) => state.vaults[chain.id]);
 
-  if (isLoading) {
+  if (!vault || vault.isLoading) {
     return (
       <div
         key={chain.id}
@@ -98,9 +74,9 @@ export default function AAVEYieldChain({
           </div>
           <div className="flex items-baseline justify-end gap-2">
             <span className={`text-xl font-bold ${
-              apr ? (parseFloat(apr) > 5 ? 'text-green-600' : 'text-blue-600') : 'text-gray-400'
+              vault.apr ? (parseFloat(vault.apr) > 5 ? 'text-green-600' : 'text-blue-600') : 'text-gray-400'
             }`}>
-              {apr ? `${apr}%` : "..."}
+              {vault.apr ? `${vault.apr}%` : "..."}
             </span>
           </div>
         </div>
@@ -110,14 +86,14 @@ export default function AAVEYieldChain({
       <div className="mt-4 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
         <div
           className={`h-full ${
-            apr
-              ? parseFloat(apr) > 5
+            vault.apr
+              ? parseFloat(vault.apr) > 5
                 ? "bg-green-500"
                 : "bg-blue-500"
               : "bg-gray-300"
           }`}
           style={{
-            width: apr ? `${Math.min(parseFloat(apr) * 10, 100)}%` : "0%",
+            width: vault.apr ? `${Math.min(parseFloat(vault.apr) * 10, 100)}%` : "0%",
           }}
         />
       </div>
