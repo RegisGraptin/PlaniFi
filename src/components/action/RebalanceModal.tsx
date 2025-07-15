@@ -1,17 +1,124 @@
 import { useBalanceStore } from "@/store/balanceStore";
 import { config } from "@/utils/wagmi";
 import React, { useState, useEffect } from "react";
+import { FaExchangeAlt } from "react-icons/fa";
+import { FaXmark } from "react-icons/fa6";
 import { FiX, FiArrowRight, FiInfo } from "react-icons/fi";
+import { HiChevronUpDown } from "react-icons/hi2";
+import Select from "react-select";
 import { Chain } from "viem";
 
 interface RebalanceModalProps {
   onClose: () => void;
 }
 
+
+export type OptionType = {
+  value: string;
+  label: string;
+  icon?: JSX.Element;
+};
+
+
 const RebalanceModal: React.FC<RebalanceModalProps> = ({ onClose }) => {
   const balances = useBalanceStore((state) => state.balances);
 
   const [selectedFromChains, setSelectedFromChains] = useState<number[]>([]);
+
+   const customStyles: StylesConfig<OptionType, true, GroupBase<OptionType>> = {
+    control: (provided, state) => ({
+      ...provided,
+      minHeight: "44px",
+      borderRadius: "8px",
+      borderColor: state.isFocused ? "#6366f1" : "#d1d5db",
+      boxShadow: state.isFocused ? "0 0 0 1px #6366f1" : "none",
+      "&:hover": {
+        borderColor: state.isFocused ? "#6366f1" : "#9ca3af",
+      },
+      paddingLeft: "4px",
+    }),
+    multiValue: (provided) => ({
+      ...provided,
+      backgroundColor: "#e0e7ff",
+      borderRadius: "6px",
+      padding: "2px 6px",
+    }),
+    multiValueLabel: (provided) => ({
+      ...provided,
+      color: "#4f46e5",
+      fontWeight: "500",
+      fontSize: "14px",
+    }),
+    multiValueRemove: (provided) => ({
+      ...provided,
+      color: "#4f46e5",
+      ":hover": {
+        backgroundColor: "transparent",
+        color: "#4338ca",
+      },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected
+        ? "#6366f1"
+        : state.isFocused
+        ? "#e0e7ff"
+        : "white",
+      color: state.isSelected ? "white" : "#1f2937",
+      ":active": {
+        backgroundColor: state.isSelected ? "#6366f1" : "#e0e7ff",
+      },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      borderRadius: "8px",
+      boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+    }),
+  };
+
+  // Custom components
+  const customComponents = {
+    DropdownIndicator: (props: any) => (
+      <HiChevronUpDown
+        className="h-5 w-5 text-gray-400"
+        aria-hidden="true"
+        {...props.innerProps}
+      />
+    ),
+    MultiValueRemove: (props: any) => (
+      <FaXmark
+        className="h-4 w-4 ml-1 hover:text-indigo-700"
+        {...props.innerProps}
+      />
+    ),
+    Option: ({ children, ...props }: any) => (
+      <div
+        {...props.innerProps}
+        className={`flex items-center px-3 py-2 cursor-pointer ${props.isSelected ? "bg-indigo-500 text-white" : props.isFocused ? "bg-indigo-50" : ""}`}
+      >
+        {props.data.icon && (
+          <span className="mr-2 flex-shrink-0">{props.data.icon}</span>
+        )}
+        <input
+          type="checkbox"
+          checked={props.isSelected}
+          readOnly
+          className="mr-2 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+        />
+        {children}
+      </div>
+    ),
+    MultiValueLabel: ({ children, ...props }: any) => (
+      <div {...props.innerProps} className="flex items-center">
+        {props.data.icon && (
+          <span className="mr-1 flex-shrink-0">{props.data.icon}</span>
+        )}
+        {children}
+      </div>
+    ),
+  };
+
+
   // const [selectedToChain, setSelectedToChain] = useState<string>('');
   // const [amounts, setAmounts] = useState<Record<string, number>>({});
   // const [isRebalancing, setIsRebalancing] = useState(false);
@@ -84,11 +191,28 @@ const RebalanceModal: React.FC<RebalanceModalProps> = ({ onClose }) => {
   //   }
   // };
 
+  const [selectedChains, setSelectedChains] = useState(null);
+
+  const handleChange = (value) => {
+    console.log("value:", value);
+    setSelectedChains(value);
+  };
+
+  const options = config.chains.map((chain) => ({
+    value: "" + chain.id,
+    label: chain.name,
+  }));
+
   return (
     <div className="w-full max-w-md rounded-lg bg-white shadow-xl">
       {/* Modal Header */}
       <div className="flex items-center justify-between border-b p-4">
-        <h2 className="text-xl font-semibold">Rebalance USDC</h2>
+        <h2 className="flex items-center text-xl font-semibold">
+          <span className="pr-3">
+            <FaExchangeAlt />
+          </span>
+          Rebalance USDC
+        </h2>
         <button
           onClick={onClose}
           className="rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
@@ -111,6 +235,24 @@ const RebalanceModal: React.FC<RebalanceModalProps> = ({ onClose }) => {
             </span>
           </h3>
           <div className="space-y-2">
+            <Select
+              value={selectedChains}
+              onChange={handleChange}
+              isMulti={true}
+              options={options}
+              
+              
+              placeholder={"Choose chains..."}
+              styles={customStyles}
+              components={customComponents}
+              isSearchable={true}
+              className={`text-sm `}
+              classNamePrefix="select"
+              closeMenuOnSelect={false}
+              hideSelectedOptions={false}
+              noOptionsMessage={() => "No options found"}
+            />
+
             {config.chains.map((chain) => (
               <div key={chain.id} className="rounded-lg border p-3">
                 <label className="flex cursor-pointer items-center justify-between">
