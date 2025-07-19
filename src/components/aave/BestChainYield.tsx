@@ -1,6 +1,7 @@
-// BestChainYield.tsx
 import { useVaultStore } from "@/store/vaultStore";
+import { normalizeString } from "@/utils/string";
 import { config } from "@/utils/wagmi";
+import Image from "next/image";
 
 interface BestChainYieldProps {
   chainId: number | null;
@@ -37,7 +38,14 @@ export default function BestChainYield({ chainId }: BestChainYieldProps) {
           ) : chain ? (
             <div className="flex items-center">
               <div className="bg-white p-2 rounded-lg shadow-sm mr-4">
-                <div className="bg-gray-200 border-2 border-dashed rounded-xl w-12 h-12" />
+                <Image
+                  src={`/chains/${normalizeString(chain.name)}.svg`}
+                  alt={`${chain.name} icon`}
+                  width={24}
+                  height={24}
+                  className="w-6 h-6 object-contain"
+                  loading="lazy"
+                />
               </div>
               <div>
                 <div className="text-sm text-gray-600">Highest APR</div>
