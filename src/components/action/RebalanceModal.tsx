@@ -3,13 +3,12 @@ import { useVaultStore } from "@/store/vaultStore";
 import { normalizeString } from "@/utils/string";
 import { config } from "@/utils/wagmi";
 import Image from "next/image";
-import React, { useState, useEffect, JSX } from "react";
+import React, { useState } from "react";
 import { FaExchangeAlt } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
 import { FiX, FiArrowRight, FiInfo } from "react-icons/fi";
 import { HiChevronUpDown } from "react-icons/hi2";
 import Select, { GroupBase, StylesConfig } from "react-select";
-import { Chain } from "viem";
 
 interface RebalanceModalProps {
   onClose: () => void;
@@ -115,12 +114,21 @@ const customComponents = {
 };
 
 const RebalanceModal: React.FC<RebalanceModalProps> = ({ onClose }) => {
+  
+  // Defined list of chains
+  const options = config.chains.map((chain) => ({
+    label: chain.name,
+    value: "" + chain.id,
+  }));
+
+  const bestChainId = useVaultStore((state) => state.bestChainId);
+  
   const balances = useBalanceStore((state) => state.balances);
 
   const [selectedChains, setSelectedChains] = useState<OptionType[]>([]);
-  const [toChain, setToChain] = useState<OptionType | null>(null);
-
-  const bestChainId = useVaultStore((state) => state.bestChainId);
+  const [toChain, setToChain] = useState<OptionType | null>(
+    options.find((option) => option.value === String(bestChainId))
+  );
 
   const isRebalancing = false;
 
@@ -129,11 +137,11 @@ const RebalanceModal: React.FC<RebalanceModalProps> = ({ onClose }) => {
     setSelectedChains(value);
   };
 
-  // Defined list of chains
-  const options = config.chains.map((chain) => ({
-    label: chain.name,
-    value: "" + chain.id,
-  }));
+  const handleRebalancing = () => {
+    console.log("test")
+  }
+
+  
 
   return (
     <div className="w-full max-w-md rounded-lg bg-white shadow-xl">
@@ -242,10 +250,6 @@ const RebalanceModal: React.FC<RebalanceModalProps> = ({ onClose }) => {
           </h3>
           <div className="space-y-2">
             <Select
-              defaultInputValue={
-                options.find((option) => option.value === String(bestChainId))
-                  ?.label
-              }
               value={toChain}
               onChange={(newValue) => setToChain(newValue)}
               options={options}
@@ -273,7 +277,7 @@ const RebalanceModal: React.FC<RebalanceModalProps> = ({ onClose }) => {
           Cancel
         </button>
         <button
-          onClick={() => {}}
+          onClick={handleRebalancing}
           disabled={selectedChains.length === 0 || !toChain || isRebalancing}
           className="flex items-center gap-1 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
         >

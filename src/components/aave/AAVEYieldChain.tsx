@@ -48,51 +48,65 @@ export default function AAVEYieldChain({
         </div>
       )}
 
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-lg font-semibold text-gray-800 flex items-center">
-            {chain.name}
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-gray-800">
+              {chain.name}
+            </h2>
             {isBest && (
-              <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
+              <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
                 Recommended
               </span>
             )}
-          </h2>
-          <div className="mt-1 flex items-center">
-            <span className="text-sm font-medium text-gray-700">
-              {balance ? balance : "0"} USDC
-            </span>
           </div>
+          <p className="text-sm text-gray-600 mt-1">
+            Balance: {balance ? balance : "0"} USDC
+          </p>
         </div>
 
-        <div className="text-right">
-          <div className="text-xs text-gray-500 font-medium uppercase tracking-wider">
-            APR
-          </div>
-          <div className="flex items-baseline justify-end gap-2">
-            <span className={`text-xl font-bold ${
-              vault.apr ? (parseFloat(vault.apr) > 5 ? 'text-green-600' : 'text-blue-600') : 'text-gray-400'
-            }`}>
-              {vault.apr ? `${vault.apr}%` : "..."}
-            </span>
-          </div>
+        <div className="flex flex-col items-end">
+          <span className="text-xs text-gray-500 font-medium">APR</span>
+          <span
+            className={`text-xl font-bold ${
+              vault.apr
+                ? parseFloat(vault.apr) > 5
+                  ? "text-green-600"
+                  : "text-blue-600"
+                : "text-gray-400"
+            }`}
+          >
+            {vault.apr ? `${vault.apr}%` : "..."}
+          </span>
         </div>
       </div>
 
-      {/* Status bar at bottom */}
-      <div className="mt-4 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
-        <div
-          className={`h-full ${
-            vault.apr
-              ? parseFloat(vault.apr) > 5
-                ? "bg-green-500"
-                : "bg-blue-500"
-              : "bg-gray-300"
-          }`}
-          style={{
-            width: vault.apr ? `${Math.min(parseFloat(vault.apr) * 10, 100)}%` : "0%",
-          }}
-        />
+      <div className="mt-3 flex items-center gap-3">
+        <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            className={`h-full ${
+              vault.apr
+                ? parseFloat(vault.apr) > 5
+                  ? "bg-green-500"
+                  : "bg-blue-500"
+                : "bg-gray-300"
+            }`}
+            style={{
+              width: vault.apr
+                ? `${Math.min(parseFloat(vault.apr) * 10, 100)}%`
+                : "0%",
+            }}
+          />
+        </div>
+
+        {!isBest && (
+          <button
+            // onClick={onClick}
+            className="shrink-0 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors"
+          >
+            Rebalance
+          </button>
+        )}
       </div>
     </div>
   );

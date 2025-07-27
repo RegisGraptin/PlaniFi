@@ -26,7 +26,7 @@ export default function AAVEYieldAcrossChains() {
         <BestChainYield chainId={bestChainId} />
       </div>
 
-      <div className="mb-8">
+      <div className="mb-8 flex justify-center">
         <RebalanceAction />
       </div>
 
