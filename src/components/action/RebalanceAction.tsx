@@ -21,11 +21,42 @@ const ActionButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
   </button>
 );
 
-export default function RebalanceAction() {
+export function RebalanceSoonAction() {
   return (
     <>
       <PopupButton
         ButtonComponent={ActionButton}
+        ModalComponent={RebalanceModal}
+      />
+    </>
+  );
+}
+
+const RebalanceSingleButton: React.FC<{
+  onClick: () => void;
+  disabled?: boolean;
+}> = ({ onClick, disabled = false }) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    className={`
+      px-4 py-2 text-sm font-medium rounded-md
+      transition-colors duration-200
+      ${disabled
+        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+        : 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800'
+      }
+    `}
+  >
+    Rebalance
+  </button>
+);
+
+export function RebalanceSingleAction() {
+  return (
+    <>
+      <PopupButton
+        ButtonComponent={RebalanceSingleButton}
         ModalComponent={RebalanceModal}
       />
     </>

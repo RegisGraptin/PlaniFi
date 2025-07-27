@@ -1,5 +1,6 @@
 import { useBalanceStore } from "@/store/balanceStore";
 import { useVaultStore } from "@/store/vaultStore";
+import { RebalanceSingleAction } from "../action/RebalanceAction";
 
 interface Chain {
   id: number;
@@ -100,12 +101,7 @@ export default function AAVEYieldChain({
         </div>
 
         {!isBest && (
-          <button
-            // onClick={onClick}
-            className="shrink-0 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors"
-          >
-            Rebalance
-          </button>
+          <RebalanceSingleAction />
         )}
       </div>
     </div>

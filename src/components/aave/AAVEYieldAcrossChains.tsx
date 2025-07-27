@@ -2,8 +2,9 @@ import { config } from "@/utils/wagmi";
 import AAVEYieldChain from "./AAVEYieldChain";
 import { useState } from "react";
 import BestChainYield from "./BestChainYield";
-import RebalanceAction from "../action/RebalanceAction";
+
 import { useVaultStore } from "@/store/vaultStore";
+import { RebalanceSoonAction } from "../action/RebalanceAction";
 
 export default function AAVEYieldAcrossChains() {
   const bestChainId = useVaultStore((state) => state.bestChainId);
@@ -27,7 +28,7 @@ export default function AAVEYieldAcrossChains() {
       </div>
 
       <div className="mb-8 flex justify-center">
-        <RebalanceAction />
+        <RebalanceSoonAction />
       </div>
 
 
