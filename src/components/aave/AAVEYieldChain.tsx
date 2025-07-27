@@ -101,7 +101,7 @@ export default function AAVEYieldChain({
         </div>
 
         {!isBest && (
-          <RebalanceSingleAction />
+          <RebalanceSingleAction fromChain={chain}/>
         )}
       </div>
     </div>

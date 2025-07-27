@@ -1,5 +1,7 @@
 import RebalanceModal from "./RebalanceModal";
 import PopupButton from "../ui/button/PopupButton";
+import RebalanceSingleModal from "./RebalanceSingleModal";
+import { Chain } from "viem";
 
 const ActionButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
   <button
@@ -52,12 +54,13 @@ const RebalanceSingleButton: React.FC<{
   </button>
 );
 
-export function RebalanceSingleAction() {
+export function RebalanceSingleAction({ fromChain }: {fromChain: Chain}) {
   return (
     <>
       <PopupButton
         ButtonComponent={RebalanceSingleButton}
-        ModalComponent={RebalanceModal}
+        ModalComponent={RebalanceSingleModal}
+        modalProps={{fromChain}}
       />
     </>
   );
