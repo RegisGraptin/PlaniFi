@@ -3,22 +3,28 @@ import { http } from "wagmi";
 import {
   arbitrum,
   arbitrumSepolia,
+  base,
+  baseSepolia,
+  gnosis,
   mainnet,
   optimism,
   optimismSepolia,
+  scroll,
+  scrollSepolia,
   sepolia,
 } from "wagmi/chains";
 
 const isTestEnv = process.env.NEXT_PUBLIC_ENV === "test";
 
 const chains = isTestEnv
-  ? ([sepolia, optimismSepolia, arbitrumSepolia] as const)
-  : ([mainnet, optimism, arbitrum] as const);
+  ? ([sepolia, optimismSepolia, arbitrumSepolia, baseSepolia, scrollSepolia] as const)
+  : ([mainnet, optimism, arbitrum, base, gnosis, scroll] as const);
 
 const transports = Object.fromEntries(
   chains.map((chain) => {
     let url = "";
     switch (chain.id) {
+      // TESTNET
       case sepolia.id:
         url = `https://eth-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
         break;
@@ -28,6 +34,13 @@ const transports = Object.fromEntries(
       case arbitrumSepolia.id:
         url = `https://arb-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
         break;
+      case baseSepolia.id:
+        url = `https://base-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
+        break;
+      case scrollSepolia.id:
+        url = `https://scroll-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
+        break;
+      // MAINNET
       case mainnet.id:
         url = `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
         break;
@@ -36,6 +49,15 @@ const transports = Object.fromEntries(
         break;
       case arbitrum.id:
         url = `https://arb-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
+        break;
+      case base.id:
+        url = `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
+        break;
+      case gnosis.id:
+        url = `https://gnosis-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
+        break;
+      case scroll.id:
+        url = `https://scroll-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
         break;
       default:
         url = "";
