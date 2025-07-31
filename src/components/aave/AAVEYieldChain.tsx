@@ -1,11 +1,8 @@
 import { useBalanceStore } from "@/store/balanceStore";
 import { useVaultStore } from "@/store/vaultStore";
 import { RebalanceSingleAction } from "../action/RebalanceAction";
+import { Chain } from "viem";
 
-interface Chain {
-  id: number;
-  name: string;
-}
 
 export default function AAVEYieldChain({
   chain,
