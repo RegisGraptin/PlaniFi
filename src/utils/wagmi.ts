@@ -17,9 +17,10 @@ import {
 const isTestEnv = process.env.NEXT_PUBLIC_ENV === "test";
 
 // TODO: Remove sepolia as USDC on AAVE does not match the one from circle
+// TODO: Remove scrollSepolia not available on Circle
 const chains = isTestEnv
-  ? ([optimismSepolia, arbitrumSepolia, baseSepolia, scrollSepolia] as const)
-  : ([mainnet, optimism, arbitrum, base, gnosis, scroll] as const);
+  ? ([optimismSepolia, arbitrumSepolia, baseSepolia] as const)
+  : ([mainnet, optimism, arbitrum, base] as const);
 
 const transports = Object.fromEntries(
   chains.map((chain) => {
@@ -38,9 +39,9 @@ const transports = Object.fromEntries(
       case baseSepolia.id:
         url = `https://base-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
         break;
-      case scrollSepolia.id:
-        url = `https://scroll-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
-        break;
+      // case scrollSepolia.id:
+      //   url = `https://scroll-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
+      //   break;
       // MAINNET
       case mainnet.id:
         url = `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
@@ -54,12 +55,12 @@ const transports = Object.fromEntries(
       case base.id:
         url = `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
         break;
-      case gnosis.id:
-        url = `https://gnosis-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
-        break;
-      case scroll.id:
-        url = `https://scroll-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
-        break;
+      // case gnosis.id:
+      //   url = `https://gnosis-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
+      //   break;
+      // case scroll.id:
+      //   url = `https://scroll-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
+      //   break;
       default:
         url = "";
     }
