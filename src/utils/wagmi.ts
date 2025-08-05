@@ -16,8 +16,9 @@ import {
 
 const isTestEnv = process.env.NEXT_PUBLIC_ENV === "test";
 
+// TODO: Remove sepolia as USDC on AAVE does not match the one from circle
 const chains = isTestEnv
-  ? ([sepolia, optimismSepolia, arbitrumSepolia, baseSepolia, scrollSepolia] as const)
+  ? ([optimismSepolia, arbitrumSepolia, baseSepolia, scrollSepolia] as const)
   : ([mainnet, optimism, arbitrum, base, gnosis, scroll] as const);
 
 const transports = Object.fromEntries(
@@ -25,9 +26,9 @@ const transports = Object.fromEntries(
     let url = "";
     switch (chain.id) {
       // TESTNET
-      case sepolia.id:
-        url = `https://eth-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
-        break;
+      // case sepolia.id:
+      //   url = `https://eth-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
+      //   break;
       case optimismSepolia.id:
         url = `https://opt-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
         break;
