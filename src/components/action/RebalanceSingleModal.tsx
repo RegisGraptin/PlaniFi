@@ -7,7 +7,7 @@ import { useState } from "react";
 import { FaExchangeAlt } from "react-icons/fa";
 import { FiX, FiArrowRight, FiInfo, FiAlertCircle } from "react-icons/fi";
 import { Chain } from "viem";
-import Select, { GroupBase, StylesConfig } from "react-select";
+import Select, { StylesConfig } from "react-select";
 import { useCrossChainTransfer } from "@/hook/cross-chain-transfer";
 import { TbLoader2 } from "react-icons/tb";
 import { BiCheckCircle } from "react-icons/bi";

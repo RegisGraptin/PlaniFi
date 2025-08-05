@@ -4,14 +4,9 @@ import {
   arbitrum,
   arbitrumSepolia,
   base,
-  baseSepolia,
-  gnosis,
   mainnet,
   optimism,
   optimismSepolia,
-  scroll,
-  scrollSepolia,
-  sepolia,
 } from "wagmi/chains";
 
 const isTestEnv = process.env.NEXT_PUBLIC_ENV === "test";

@@ -17,8 +17,8 @@ interface Configuration {
   messageV2Address: string;
 }
 
-const defaultConfiguration = (domainId: number): Configuration => {
-  return process.env.NEXT_PUBLIC_ENV === "test"
+const defaultConfiguration = (domainId: number, isTestnet: boolean): Configuration => {
+  return isTestnet
     ? {
         // TESTNET
         domainId: domainId,
@@ -43,14 +43,14 @@ const defaultConfiguration = (domainId: number): Configuration => {
 // https://developers.circle.com/cctp/evm-smart-contracts
 export const CCTP_CONFIG: Record<number, Configuration> = {
   // MAINNET
-  [mainnet.id]: defaultConfiguration(0),
-  [optimism.id]: defaultConfiguration(2),
-  [arbitrum.id]: defaultConfiguration(3),
-  [base.id]: defaultConfiguration(6),
+  [mainnet.id]: defaultConfiguration(0, false),
+  [optimism.id]: defaultConfiguration(2, false),
+  [arbitrum.id]: defaultConfiguration(3, false),
+  [base.id]: defaultConfiguration(6, false),
 
   // TESTNET
-  [sepolia.id]: defaultConfiguration(0),
-  [optimismSepolia.id]: defaultConfiguration(2),
-  [arbitrumSepolia.id]: defaultConfiguration(3),
-  [baseSepolia.id]: defaultConfiguration(6),
+  [sepolia.id]: defaultConfiguration(0, true),
+  [optimismSepolia.id]: defaultConfiguration(2, true),
+  [arbitrumSepolia.id]: defaultConfiguration(3, true),
+  [baseSepolia.id]: defaultConfiguration(6, true),
 };

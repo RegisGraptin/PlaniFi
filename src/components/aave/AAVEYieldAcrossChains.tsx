@@ -1,6 +1,5 @@
 import { config } from "@/utils/wagmi";
 import AAVEYieldChain from "./AAVEYieldChain";
-import { useState } from "react";
 import BestChainYield from "./BestChainYield";
 
 import { useVaultStore } from "@/store/vaultStore";

@@ -1,15 +1,12 @@
 import { CCTP_CONFIG } from "@/utils/circle";
 import { USDC_TOKEN_ADDRESS } from "@/utils/token";
 import { useEffect, useState } from "react";
-import { erc20Abi, getAddress, pad, parseUnits, zeroHash } from "viem";
+import { erc20Abi, getAddress, parseUnits, zeroHash } from "viem";
 import {
   useAccount,
   useChainId,
-  useChains,
-  useConnect,
   useSwitchChain,
   useTransactionReceipt,
-  useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
 
@@ -26,6 +23,11 @@ export type TransferStep =
 
 const MAX_FEE_PARAMETER = BigInt(500);
 
+interface Attestation {
+  message: `0x${string}`;
+  attestation: `0x${string}`;
+}
+
 export function useCrossChainTransfer() {
   const chainId = useChainId();
   const { address: userAddress } = useAccount();
@@ -35,7 +37,7 @@ export function useCrossChainTransfer() {
   const [originChainId, setOriginChainId] = useState<number>();
   const [targetChainId, setTargetsChainId] = useState<number>();
   
-  const [attestation, setAttestaion] = useState<any | null>();
+  const [attestation, setAttestation] = useState<Attestation | null>();
 
   const { switchChainAsync } = useSwitchChain();
   const { data: approveTxHash, writeContract: writeApprove } = useWriteContract();
@@ -145,7 +147,7 @@ export function useCrossChainTransfer() {
           },
         ],
       functionName: "receiveMessage",
-      args: [attestation.message, attestation.attestation],
+      args: [attestation!.message, attestation!.attestation],
     });
 
   }
@@ -171,7 +173,7 @@ export function useCrossChainTransfer() {
           const responseData = await response.json();
           if (responseData?.messages?.[0]?.status === "complete") {
             console.log("Attestation retrieved successfully!");
-            setAttestaion(responseData.messages[0]);
+            setAttestation(responseData.messages[0]);
             return responseData.messages[0];
           }
           console.log("Waiting for attestation...");

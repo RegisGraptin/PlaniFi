@@ -1,4 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<a id="readme-top"></a>
+
+<br />
+<div align="center">
+  <a href="https://github.com/RegisGraptin/PlaniFi">
+    <img src="./logo.png" alt="Logo" width="250" height="250">
+  </a>
+
+<h3 align="center">PlaniFi</h3>
+  <p align="center">
+    Planifi empowers users to effortlessly track, compare, and allocate USDC across AAVE to maximize yield from one unified dashboard.
+    <br />
+    <br />
+    <a href="https://github.com/RegisGraptin/PlaniFi">Code</a>
+    &middot;
+    <a href="#">Website</a>
+    &middot;
+    <a href="#">Video Demo</a>
+    
+  </p>
+</div>
+
+## About PlaniFi
+
+Planifi is a DeFi application designed to help users optimize yield on their USDC holdings by providing a unified dashboard that displays real-time lending rates available across AAVE markets. The app enables users to compare yields across different AAVE pools from different networks (Mainnet, Base, Optimism...) and seamlessly transfer their USDC to the most rewarding opportunity with a few clicks.
+
+Built with a focus on simplicity, transparency, and control, Planifi eliminates the need to manually navigate DeFi protocols or monitor volatile rates. Users maintain full custody of their assets while leveraging Circle CCTPv2 to transfer efficiently and directly their funds.
 
 ## Getting Started
 
