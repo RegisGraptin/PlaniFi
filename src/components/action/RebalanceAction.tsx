@@ -36,6 +36,7 @@ export function RebalanceSoonAction() {
 
 const RebalanceSingleButton: React.FC<{
   onClick: () => void;
+  onFormInteract: () => void;
   disabled?: boolean;
 }> = ({ onClick, disabled = false }) => (
   <button

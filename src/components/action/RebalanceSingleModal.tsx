@@ -6,7 +6,6 @@ import Image from "next/image";
 import { useState } from "react";
 import { FaExchangeAlt } from "react-icons/fa";
 import { FiX, FiArrowRight, FiInfo } from "react-icons/fi";
-import { HiChevronUpDown } from "react-icons/hi2";
 import { Chain } from "viem";
 import Select, { GroupBase, StylesConfig } from "react-select";
 import { useCrossChainTransfer } from "@/hook/cross-chain-transfer";
@@ -14,6 +13,7 @@ import { useCrossChainTransfer } from "@/hook/cross-chain-transfer";
 interface RebalanceSingleModalProps {
   fromChain: Chain;
   onClose: () => void;
+  onFormInteract: () => void;
 }
 
 type ChainOption = {
@@ -51,16 +51,17 @@ const chainSelectStyles: StylesConfig<ChainOption> = {
 const RebalanceSingleModal = ({
   fromChain,
   onClose,
+  onFormInteract,
 }: RebalanceSingleModalProps) => {
   const bestChainId = useVaultStore((state) => state.bestChainId);
   const balances = useBalanceStore((state) => state.balances);
 
   const [amount, setAmount] = useState<string>("");
-  const [toChainId, setToChainId] = useState<number | null>(bestChainId);
+  const [toChainId, setToChainId] = useState<number>(bestChainId!);
   const [isSubmitting, setIsSubmitting] = useState(false); // FIXME: What is the case for that
   const [isLocked, setIsLocked] = useState(false);
 
-  const {transfer} = useCrossChainTransfer();
+  const { transfer, state } = useCrossChainTransfer();
 
   // Defined list of chains
   const options = config.chains
@@ -80,18 +81,13 @@ const RebalanceSingleModal = ({
 
     setIsSubmitting(true);
     setIsLocked(true);
-    try {
-      // TODO: Implement rebalance logic
-      console.log(
-        `Rebalancing ${amount || maxBalance} USDC from ${fromChain.id} to ${toChainId}`,
-      );
-      transfer(
-        fromChain.id, 
-        toChainId,
-        amount);
-    } finally {
-      setIsSubmitting(false);
-    }
+    onFormInteract();  // Disable backdrop close
+
+    // TODO: Implement rebalance logic
+    console.log(
+      `Rebalancing ${amount || maxBalance} USDC from ${fromChain.id} to ${toChainId}`,
+    );
+    transfer(fromChain.id, toChainId, amount);
   };
 
   const formatOptionLabel = ({ value, label }: ChainOption) => {
@@ -183,7 +179,9 @@ const RebalanceSingleModal = ({
             />
           </label>
           <Select
-            value={options.find((c) => toChainId && c.value === toChainId.toString())}
+            value={options.find(
+              (c) => toChainId && c.value === toChainId.toString(),
+            )}
             onChange={(option) => option && setToChainId(Number(option.value))}
             options={options}
             styles={chainSelectStyles}
@@ -195,25 +193,29 @@ const RebalanceSingleModal = ({
 
       {/* Footer */}
       <div className="flex justify-end gap-2 border-t p-4">
-        <button
-          onClick={onClose}
-          className="rounded-md px-4 py-2 text-gray-700 hover:bg-gray-100"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting || !toChainId}
-          className="flex items-center gap-1 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-        >
-          {isSubmitting ? (
-            "Processing..."
-          ) : (
-            <>
-              Rebalance <FiArrowRight />
-            </>
-          )}
-        </button>
+        {state === "idle" && (
+          <>
+            <button
+              onClick={onClose}
+              className="rounded-md px-4 py-2 text-gray-700 hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting || !toChainId}
+              className="flex items-center gap-1 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                "Processing..."
+              ) : (
+                <>
+                  Rebalance <FiArrowRight />
+                </>
+              )}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

@@ -13,17 +13,22 @@ const PopupButton = <T,>({
   modalProps,
 }: PopupButtonProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [disableBackdropClose, setDisableBackdropClose] = useState(false);
 
   const handleClose = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) setIsOpen(false);
+    if (e.target === e.currentTarget && !disableBackdropClose) setIsOpen(false);
   };
 
   const onModalClose = () => {
     setIsOpen(false);
+    setDisableBackdropClose(false);
     if (modalProps && typeof (modalProps as any).onClose === "function") {
       (modalProps as any).onClose();
     }
   };
+
+  // Callback to be called by the modal/form when user interacts
+  const onFormInteract = () => setDisableBackdropClose(true);
 
   const modalContent = (
     <div
@@ -31,7 +36,11 @@ const PopupButton = <T,>({
       onClick={handleClose}
       aria-hidden={!isOpen}
     >
-      <ModalComponent {...(modalProps as T)} onClose={onModalClose} />
+      <ModalComponent
+        {...(modalProps as T)}
+        onClose={onModalClose}
+        onFormInteract={onFormInteract}
+      />
     </div>
   );
 
