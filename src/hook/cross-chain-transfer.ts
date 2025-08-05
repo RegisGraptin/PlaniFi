@@ -1,131 +1,64 @@
 import { CCTP_CONFIG } from "@/utils/circle";
 import { USDC_TOKEN_ADDRESS } from "@/utils/token";
 import { useEffect, useState } from "react";
-import { erc20Abi, getAddress } from "viem";
-import { useWriteContract } from "wagmi";
-
-
+import { erc20Abi, getAddress, pad, parseUnits, zeroHash } from "viem";
+import {
+  useAccount,
+  useChainId,
+  useChains,
+  useConnect,
+  useSwitchChain,
+  useTransactionReceipt,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
 
 export type TransferStep =
   | "idle"
+  | "to-origin-chain"
   | "approving"
   | "burning"
   | "waiting-attestation"
+  | "to-target-chain"
   | "minting"
   | "completed"
   | "error";
 
+const MAX_FEE_PARAMETER = BigInt(500);
+
 export function useCrossChainTransfer() {
-    const [currentStep, setCurrentStep] = useState<TransferStep>("idle");
+  const chainId = useChainId();
+  const { address: userAddress } = useAccount();
+  
+  const [state, setState] = useState<TransferStep>("idle");
+  const [amount, setAmount] = useState<bigint | null>();
+  const [originChainId, setOriginChainId] = useState<number>();
+  const [targetChainId, setTargetsChainId] = useState<number>();
+  
+  const [attestation, setAttestaion] = useState<any | null>();
 
-    const {
-        data: hash,
-        error,
-        writeContract,
-        isPending: txIsPending,
-    } = useWriteContract();
+  const { switchChainAsync } = useSwitchChain();
+  const { data: approveTxHash, writeContract: writeApprove } = useWriteContract();
+  const { data: burnTxHash, writeContract: writeBurn } = useWriteContract();
+  const { data: mintTxHash, writeContract: writeMint } = useWriteContract();
+  
+  const {isSuccess: isApproveSuccess}  = useTransactionReceipt({hash: approveTxHash, chainId: originChainId});
+  const {isSuccess: isBurnSuccess}  = useTransactionReceipt({hash: burnTxHash, chainId: originChainId});
+  const {isSuccess: isMintSuccess}  = useTransactionReceipt({hash: mintTxHash, chainId: targetChainId});
+  
 
-    // We expect a formatted amount here
-    const approveTransaction = (originChainId: number, amount: bigint) => {
-        console.log("Approving USDC transfer...");
-
-        writeContract({
-            address: getAddress(USDC_TOKEN_ADDRESS[originChainId]),
-            abi: erc20Abi,
-            functionName: "approve",
-            args: [
-                getAddress(CCTP_CONFIG[originChainId].tokenMessagerV2Address),
-                amount 
-            ],
-        });
-
-    }
-
-    
-
-
-}
-
-
-const AggregateAction = ({
-  originChain,
-  targetChain,
-  bridgeAmount,
-  currentPhase,
-  setCurrentPhase,
-}: {
-  originChain: number;
-  targetChain: number;
-  bridgeAmount: bigint;
-  currentPhase: Phase;
-  setCurrentPhase: (phase: Phase) => void;
-}) => {
-  const [txStatus, setTxStatus] = useState<TransactionStatus>("idle");
-  const [error, setError] = useState<string | null>(null);
-
-  const { address: userAddress, chainId } = useAccount();
-  const { switchChain } = useSwitchChain();
-
-  const { data: sepoliaClient } = useWalletClient({ chainId: sepolia.id });
-  const { data: avalancheClient } = useWalletClient({
-    chainId: avalancheFuji.id,
-  });
-
-  const client = {
-    [sepolia.id]: sepoliaClient,
-    [avalancheFuji.id]: avalancheClient,
-  };
-
-  // Auto-advance phase when chain is correct
   useEffect(() => {
-    console.log(chainId, targetChain);
-    if (
-      (currentPhase === "checkChain" || currentPhase === "") &&
-      chainId !== targetChain
-    ) {
-      setCurrentPhase("approve");
-    }
-    if (
-      (currentPhase === "approve" || currentPhase === "") &&
-      chainId === targetChain
-    ) {
-      setCurrentPhase("checkChain");
-    }
-  }, [chainId, targetChain, currentPhase]);
+    if (state === "approving" && isApproveSuccess) {
 
-  const approveTransaction = async () => {
-    if (!client[originChain]) return;
-    console.log("Approving USDC transfer...");
-    console.log(bridgeAmount);
-    const approveTx = await client[originChain].sendTransaction({
-      to: USDC_ADDRESS[originChain],
-      data: encodeFunctionData({
-        abi: [
-          {
-            type: "function",
-            name: "approve",
-            stateMutability: "nonpayable",
-            inputs: [
-              { name: "spender", type: "address" },
-              { name: "amount", type: "uint256" },
-            ],
-            outputs: [{ name: "", type: "bool" }],
-          },
-        ],
-        functionName: "approve",
-        args: [TOKEN_MESSENGER_ADDRESSES[originChain], bridgeAmount], // Set max allowance in 10^6 subunits (10,000 USDC; change as needed)
-      }),
-    });
+      console.log("Burn request...");
+      setState("burning");
 
-    console.log(`USDC Approval Tx: ${approveTx}`);
-  };
+      const originConfig = CCTP_CONFIG[originChainId!];
+      const targetConfig = CCTP_CONFIG[targetChainId!];
 
-  async function burnUSDC() {
-    if (!client[originChain]) return;
-
-    const burnTx = await client[originChain].sendTransaction({
-      to: TOKEN_MESSENGER_ADDRESSES[originChain],
-      data: encodeFunctionData({
+      // Burn USDC
+      writeBurn({
+        address: getAddress(originConfig.tokenMessagerV2Address),
         abi: [
           {
             type: "function",
@@ -145,57 +78,55 @@ const AggregateAction = ({
         ],
         functionName: "depositForBurn",
         args: [
-          bridgeAmount, // AMOUNT
-          CIRCLE_DOMAIN_ID[targetChain],
-          addressToBytes32(userAddress!),
-          USDC_ADDRESS[originChain],
-          DESTINATION_CALLER_BYTES32, // Allow any one to call it
+          amount!,
+          targetConfig.domainId,
+          `0x000000000000000000000000${userAddress!.slice(2)}`,
+          getAddress(USDC_TOKEN_ADDRESS[originChainId!]),
+          zeroHash,  // Allow any one to call it
           MAX_FEE_PARAMETER,
           1000, // minFinalityThreshold (1000 or less for Fast Transfer)
         ],
-      }),
-    });
-
-    console.log(`Burn Tx: ${burnTx}`);
-    return burnTx;
-  }
-
-  async function retrieveAttestation(transactionHash: string) {
-    console.log("Retrieving attestation...");
-    const origin = CIRCLE_DOMAIN_ID[originChain];
-    const url = `https://iris-api-sandbox.circle.com/v2/messages/${origin}?transactionHash=${transactionHash}`;
-    while (true) {
-      try {
-        const response = await fetch(url);
-        if (response.status === 404) {
-          console.log("Waiting for attestation...");
-        }
-        const responseData = await response.json();
-        if (responseData?.messages?.[0]?.status === "complete") {
-          console.log("Attestation retrieved successfully!");
-          return responseData.messages[0];
-        }
-        console.log("Waiting for attestation...");
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error("Error fetching attestation:", error.message);
-        } else {
-          console.error("Error fetching attestation:", error);
-        }
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-      }
+      });
     }
-  }
+  }, [isApproveSuccess])
 
-  async function mintUSDC(attestation: any) {
-    if (!client[targetChain]) return;
+  useEffect(() => {
+    if (state === "burning" && isBurnSuccess) {
+      console.log("Fetch Attestation...");
+      setState("waiting-attestation");
+      retrieveAttestation();
+    }
+  }, [isBurnSuccess])
 
-    console.log("Minting USDC on Avalanche Fuji...");
-    const mintTx = await client[targetChain].sendTransaction({
-      to: MESSAGE_TRANSMITTER_ADDRESSES[targetChain],
-      data: encodeFunctionData({
-        abi: [
+  useEffect(() => {
+    if (state === "waiting-attestation" && attestation) {
+      console.log("Minting tokens...");
+      mintOnTargetChain();
+    }
+  }, [attestation])
+
+
+  useEffect(() => {
+    if (state === "minting" && isMintSuccess) {
+      console.log("Done");
+      setState("completed");
+    }
+  }, [isMintSuccess])
+
+
+
+
+  async function mintOnTargetChain() {
+    setState("to-target-chain");
+    await switchChainAsync({ chainId: targetChainId! });
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    console.log("Minting tokens on target chain...");
+    setState("minting");
+    const targetConfig = CCTP_CONFIG[targetChainId!];
+    writeMint({
+      address: getAddress(targetConfig.messageTransmitterV2Address),
+      abi: [
           {
             type: "function",
             name: "receiveMessage",
@@ -207,102 +138,90 @@ const AggregateAction = ({
             outputs: [],
           },
         ],
-        functionName: "receiveMessage",
-        args: [attestation.message, attestation.attestation],
-      }),
+      functionName: "receiveMessage",
+      args: [attestation.message, attestation.attestation],
     });
-    console.log(`Mint Tx: ${mintTx}`);
+
   }
 
-  const [attestation, setAttestation] = useState<any>(null);
+  
 
-  const handleNextPhase = async () => {
-    switch (currentPhase) {
-      case "checkChain":
-        if (chainId === targetChain) {
-          await switchChain({ chainId: originChain });
-          setCurrentPhase("approve");
+  useEffect(() => {
+    console.log("State: ", state);
+  }, [state]);
+
+
+  async function retrieveAttestation() {
+
+      console.log("Retrieving attestation...");
+      const origin = CCTP_CONFIG[originChainId!].domainId;
+      const url = `https://iris-api-sandbox.circle.com/v2/messages/${origin}?transactionHash=${burnTxHash}`;
+      while (true) {
+        try {
+          const response = await fetch(url);
+          if (response.status === 404) {
+            console.log("Waiting for attestation...");
+          }
+          const responseData = await response.json();
+          if (responseData?.messages?.[0]?.status === "complete") {
+            console.log("Attestation retrieved successfully!");
+            setAttestaion(responseData.messages[0]);
+            return responseData.messages[0];
+          }
+          console.log("Waiting for attestation...");
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+        } catch (error) {
+          if (error instanceof Error) {
+            console.error("Error fetching attestation:", error.message);
+          } else {
+            console.error("Error fetching attestation:", error);
+          }
+          await new Promise((resolve) => setTimeout(resolve, 5000));
         }
-        break;
-      case "approve":
-        await approveTransaction();
-        setCurrentPhase("burn");
-        break;
-      case "burn":
-        const burnTx = await burnUSDC();
-        const _attestation = await retrieveAttestation(burnTx as string);
-        setAttestation(_attestation);
-
-        setCurrentPhase("mint");
-        await switchChain({ chainId: targetChain });
-        break;
-      case "mint":
-        await mintUSDC(attestation);
-        setCurrentPhase("completed");
-        break;
+      }
     }
+
+  const transfer = async (
+    originChainId: number, 
+    targetChainId: number, 
+    amount: string
+  ) => {
+
+    setOriginChainId(originChainId);
+    setTargetsChainId(targetChainId);
+
+    const originConfig = CCTP_CONFIG[originChainId];
+    const formattedAmount = parseUnits(amount, 6);
+    setAmount(formattedAmount);
+
+    if (chainId !== originChainId) {
+      console.log("Switch chain...");
+      setState("to-origin-chain");
+      await switchChainAsync({ chainId: originChainId });
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+
+    console.log("Approving request...");
+    setState("approving");
+
+    writeApprove({
+      address: getAddress(USDC_TOKEN_ADDRESS[originChainId]),
+      abi: erc20Abi,
+      functionName: "approve",
+      args: [
+        getAddress(originConfig.tokenMessagerV2Address),
+        formattedAmount,
+      ],
+      chainId: originChainId,
+    });
+  
+    
   };
 
-  const getButtonConfig = () => {
-    switch (currentPhase) {
-      case "checkChain":
-        return {
-          text: "Switch Network",
-        };
-      case "approve":
-        return {
-          text: "Approve Transaction",
-        };
-      case "burn":
-        return {
-          text: "Burn Tokens",
-        };
-      case "mint":
-        return {
-          text: "Mint tokens",
-        };
-      case "completed":
-        return {
-          text: "All Steps Completed!",
-
-          disabled: true,
-        };
-      default:
-        return {
-          text: "Aggregate Action",
-          disabled: true,
-        };
-    }
+  return {
+    transfer,
+    state,
   };
-
-  const disabledStyle = "bg-gray-300 text-gray-500 cursor-not-allowed";
-  const { text, disabled } = getButtonConfig();
-
-  return (
-    <>
-      {error && (
-        <div className="mt-4 p-3 bg-red-100 text-red-700 rounded">
-          Error: {error}
-        </div>
-      )}
-
-      <button
-        className="w-full sm:w-auto px-8 py-2 bg-transparent border-2 border-gray-300 hover:border-blue-600 rounded-xl text-lg font-semibold text-gray-900 flex items-center justify-center gap-2 hover:bg-gray-50 transition-all"
-        onClick={handleNextPhase}
-        disabled={disabled}
-      >
-        {txStatus === "processing" ? (
-          <span className="flex items-center gap-2">
-            <span className="animate-spin">⏳</span>
-            Processing...
-          </span>
-        ) : (
-          text
-        )}
-      </button>
-    </>
-  );
-};
-
-export default AggregateAction;
+}
 

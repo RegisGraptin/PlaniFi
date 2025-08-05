@@ -9,6 +9,7 @@ import { FiX, FiArrowRight, FiInfo } from "react-icons/fi";
 import { HiChevronUpDown } from "react-icons/hi2";
 import { Chain } from "viem";
 import Select, { GroupBase, StylesConfig } from "react-select";
+import { useCrossChainTransfer } from "@/hook/cross-chain-transfer";
 
 interface RebalanceSingleModalProps {
   fromChain: Chain;
@@ -55,8 +56,11 @@ const RebalanceSingleModal = ({
   const balances = useBalanceStore((state) => state.balances);
 
   const [amount, setAmount] = useState<string>("");
-  const [toChainId, setToChainId] = useState<string>(String(bestChainId));
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toChainId, setToChainId] = useState<number | null>(bestChainId);
+  const [isSubmitting, setIsSubmitting] = useState(false); // FIXME: What is the case for that
+  const [isLocked, setIsLocked] = useState(false);
+
+  const {transfer} = useCrossChainTransfer();
 
   // Defined list of chains
   const options = config.chains
@@ -69,12 +73,22 @@ const RebalanceSingleModal = ({
   const maxBalance = balances[fromChain.id] || "0";
 
   const handleSubmit = async () => {
+    // Check the amount is valid
+    if (Number(amount) === 0) {
+      return;
+    }
+
     setIsSubmitting(true);
+    setIsLocked(true);
     try {
       // TODO: Implement rebalance logic
       console.log(
         `Rebalancing ${amount || maxBalance} USDC from ${fromChain.id} to ${toChainId}`,
       );
+      transfer(
+        fromChain.id, 
+        toChainId,
+        amount);
     } finally {
       setIsSubmitting(false);
     }
@@ -147,9 +161,11 @@ const RebalanceSingleModal = ({
               step="0.01"
               min="0"
               max={maxBalance}
+              disabled={isLocked}
             />
             <button
               onClick={() => setAmount(maxBalance)}
+              disabled={isLocked}
               className="rounded-md bg-gray-100 px-3 py-2 text-sm hover:bg-gray-200"
             >
               Max
@@ -167,11 +183,12 @@ const RebalanceSingleModal = ({
             />
           </label>
           <Select
-            value={options.find((c) => c.value === toChainId)}
-            onChange={(option) => option && setToChainId(option.value)}
+            value={options.find((c) => toChainId && c.value === toChainId.toString())}
+            onChange={(option) => option && setToChainId(Number(option.value))}
             options={options}
             styles={chainSelectStyles}
             formatOptionLabel={formatOptionLabel}
+            isDisabled={isLocked}
           />
         </div>
       </div>
