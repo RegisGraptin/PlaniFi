@@ -56,6 +56,11 @@ export function useCrossChainTransfer() {
       const originConfig = CCTP_CONFIG[originChainId!];
       const targetConfig = CCTP_CONFIG[targetChainId!];
 
+      console.log("targetChainId:", targetChainId);
+      console.log("targetConfig:", targetConfig);
+      console.log("CCTP_CONFIG:", CCTP_CONFIG);
+      
+
       // Burn USDC
       writeBurn({
         address: getAddress(originConfig.tokenMessagerV2Address),
@@ -100,6 +105,7 @@ export function useCrossChainTransfer() {
 
   useEffect(() => {
     if (state === "waiting-attestation" && attestation) {
+      console.log("Attestation received:", attestation);
       console.log("Minting tokens...");
       mintOnTargetChain();
     }

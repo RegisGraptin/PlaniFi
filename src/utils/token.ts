@@ -16,6 +16,6 @@ export const USDC_TOKEN_ADDRESS: Record<number, string> = {
   [sepolia.id]: "0x94a9d9ac8a22534e3faca9f4e7f2e2cf85d5e4c8",  // FIXME: Not Circle address
   [optimismSepolia.id]: "0x5fd84259d66cd46123540766be93dfe6d43130d7",
   [arbitrumSepolia.id]: "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
-  [baseSepolia.id]: "0xba50cd2a20f6da35d788639e581bca8d0b5d4d5f",
+  [baseSepolia.id]: "0xba50cd2a20f6da35d788639e581bca8d0b5d4d5f", // Not Circle address - 0x036CbD53842c5426634e7929541eC2318f3dCF7e
   [scrollSepolia.id]: "0x2c9678042d52b97d27f2bd2947f7111d93f3dd0d",
 };

@@ -5,10 +5,12 @@ import { config } from "@/utils/wagmi";
 import Image from "next/image";
 import { useState } from "react";
 import { FaExchangeAlt } from "react-icons/fa";
-import { FiX, FiArrowRight, FiInfo } from "react-icons/fi";
+import { FiX, FiArrowRight, FiInfo, FiAlertCircle } from "react-icons/fi";
 import { Chain } from "viem";
 import Select, { GroupBase, StylesConfig } from "react-select";
 import { useCrossChainTransfer } from "@/hook/cross-chain-transfer";
+import { TbLoader2 } from "react-icons/tb";
+import { BiCheckCircle } from "react-icons/bi";
 
 interface RebalanceSingleModalProps {
   fromChain: Chain;
@@ -81,7 +83,7 @@ const RebalanceSingleModal = ({
 
     setIsSubmitting(true);
     setIsLocked(true);
-    onFormInteract();  // Disable backdrop close
+    onFormInteract(); // Disable backdrop close
 
     // TODO: Implement rebalance logic
     console.log(
@@ -106,6 +108,18 @@ const RebalanceSingleModal = ({
         </div>
       </>
     );
+  };
+
+  const statusMessages: Record<string, string> = {
+    idle: "Ready to start transfer",
+    "to-origin-chain": "Transferring to origin chain...",
+    approving: "Approving token spend...",
+    burning: "Burning tokens...",
+    "waiting-attestation": "Waiting for attestation...",
+    "to-target-chain": "Transferring to target chain...",
+    minting: "Minting tokens...",
+    completed: "Transfer completed!",
+    error: "An error occurred",
   };
 
   return (
@@ -191,10 +205,10 @@ const RebalanceSingleModal = ({
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="flex justify-end gap-2 border-t p-4">
-        {state === "idle" && (
-          <>
+      {/* Status information */}
+      <div className="border-t px-4 py-3">
+        {state === "idle" ? (
+          <div className="flex justify-end gap-2">
             <button
               onClick={onClose}
               className="rounded-md px-4 py-2 text-gray-700 hover:bg-gray-100"
@@ -214,7 +228,42 @@ const RebalanceSingleModal = ({
                 </>
               )}
             </button>
-          </>
+          </div>
+        ) : state === "error" ? (
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2 text-red-500">
+              <FiAlertCircle className="h-5 w-5" />
+              <span>Transfer failed</span>
+            </div>
+            <button
+              onClick={onClose}
+              className="self-end rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+            >
+              Close
+            </button>
+          </div>
+        ) : state === "completed" ? (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-green-500">
+              <BiCheckCircle className="h-5 w-5" />
+              <span>Transfer completed successfully</span>
+            </div>
+            <button
+              onClick={onClose}
+              className="self-end rounded-md bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+            >
+              Done
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TbLoader2 className="h-5 w-5 animate-spin text-blue-500" />
+              <span className="text-sm">
+                {statusMessages[state] || "Processing transaction..."}
+              </span>
+            </div>
+          </div>
         )}
       </div>
     </div>

@@ -1,6 +1,8 @@
 import {
   arbitrum,
   arbitrumSepolia,
+  base,
+  baseSepolia,
   mainnet,
   optimism,
   optimismSepolia,
@@ -44,9 +46,11 @@ export const CCTP_CONFIG: Record<number, Configuration> = {
   [mainnet.id]: defaultConfiguration(0),
   [optimism.id]: defaultConfiguration(2),
   [arbitrum.id]: defaultConfiguration(3),
+  [base.id]: defaultConfiguration(6),
 
   // TESTNET
   [sepolia.id]: defaultConfiguration(0),
   [optimismSepolia.id]: defaultConfiguration(2),
   [arbitrumSepolia.id]: defaultConfiguration(3),
+  [baseSepolia.id]: defaultConfiguration(6),
 };
