@@ -14,7 +14,8 @@ export function useUSDCBalance(
     chainId: chainId,
     query: {
       enabled: !!userAddress,
-    }
+      refetchInterval: 5000, // 5 seconds
+    },
   });
 
   const raw = result.data as bigint | undefined
