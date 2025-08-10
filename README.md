@@ -15,8 +15,7 @@
     &middot;
     <a href="#">Website</a>
     &middot;
-    <a href="#">Video Demo</a>
-    
+    <a href="https://youtu.be/5bZv6ub1V-c">Video Demo</a>
   </p>
 </div>
 
